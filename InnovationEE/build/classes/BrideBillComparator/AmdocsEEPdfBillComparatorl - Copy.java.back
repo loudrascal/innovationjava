@@ -5,7 +5,6 @@
  */
 package BrideBillComparator;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Iterator;
@@ -14,8 +13,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 
 /**
  *
@@ -49,17 +46,7 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
         BriteBillDirectory = new javax.swing.JLabel();
         StartComparison = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        ResultTable = new javax.swing.JTable(){
-			@Override
-			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-           Component component = super.prepareRenderer(renderer, row, column);
-           int rendererWidth = component.getPreferredSize().width;
-           TableColumn tableColumn = getColumnModel().getColumn(column);
-           tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
-           return component;
-        }
-    };
-	ResultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        ResultTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Amdocs/ EE PDF Bill Comparator");
@@ -150,77 +137,75 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
 
     private void ChooseBBBillDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChooseBBBillDirActionPerformed
         // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+     JFileChooser chooser = new JFileChooser(); 
+    chooser.setCurrentDirectory(new java.io.File("."));
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     //
-        // disable the "All files" option.
-        //
-        chooser.setAcceptAllFileFilterUsed(false);
-        //    
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            BriteBillDirectory.setText(chooser.getCurrentDirectory().toString());
-        }
-
-        if (!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()) {
-            StartComparison.setEnabled(true);
-        }
-
+    // disable the "All files" option.
+    //
+    chooser.setAcceptAllFileFilterUsed(false);
+    //    
+    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+        BriteBillDirectory.setText(chooser.getCurrentDirectory().toString());
+    }
+    
+    if(!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()){
+        StartComparison.setEnabled(true);
+    }
+    
     }//GEN-LAST:event_ChooseBBBillDirActionPerformed
 
     private void ChooseEEBillDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChooseEEBillDirActionPerformed
         // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+       JFileChooser chooser = new JFileChooser(); 
+    chooser.setCurrentDirectory(new java.io.File("."));
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     //
-        // disable the "All files" option.
-        //
-        chooser.setAcceptAllFileFilterUsed(false);
-        //    
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            EEBillDirectory.setText(chooser.getCurrentDirectory().toString());
-        }
-
-        if (!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()) {
-            StartComparison.setEnabled(true);
-        }
+    // disable the "All files" option.
+    //
+    chooser.setAcceptAllFileFilterUsed(false);
+    //    
+    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+        EEBillDirectory.setText(chooser.getCurrentDirectory().toString());      
+    }  
+    
+    if(!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()){
+        StartComparison.setEnabled(true);
+    }
     }//GEN-LAST:event_ChooseEEBillDirActionPerformed
 
     private void ExportResulttoExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportResulttoExcelActionPerformed
         // TODO add your handling code here:
-     //   JOptionPane.showMessageDialog(StartComparison, "This Functionality is not Present \n Thanks for your patience", "Information", WIDTH);
-        
-        ExcelExport.createExcel(ResultTable);
+        JOptionPane.showMessageDialog(StartComparison, "This Functionality is not Present \n Thanks for your patience", "Information", WIDTH);
     }//GEN-LAST:event_ExportResulttoExcelActionPerformed
 
     private void StartComparisonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartComparisonActionPerformed
         // TODO add your handling code here:
-        File eEDir = new File(EEBillDirectory.getText());
-        File bBDir = new File(BriteBillDirectory.getText());
-
-        FilenameCheck filename = new FilenameCheck(eEDir, bBDir);
-
-        //Check whether the Directory contains pdf Files or not   
-        if (filename.checkFilesIfPresent()) {
-            Map result = filename.startComparison();
-
-            DefaultTableModel model = (DefaultTableModel) ResultTable.getModel();
-            Iterator iterator = result.keySet().iterator();
-            int counter = 0;
-            while (iterator.hasNext()) {
-                Object key = iterator.next();
-                Object[] row = {counter + 1, key, result.get(key)};
-                model.addRow(row);
-                ++counter;
-            }
-
+    File eEDir = new File(EEBillDirectory.getText());
+    File bBDir = new File(BriteBillDirectory.getText());
+       
+    FilenameCheck filename = new FilenameCheck(eEDir,bBDir);
+    
+    //Check whether the Directory contains pdf Files or not   
+    if(filename.checkFilesIfPresent()){
+        Map result = filename.startComparison();
+    
+        DefaultTableModel model = (DefaultTableModel) ResultTable.getModel();
+        Iterator iterator = result.keySet().iterator();
+        int counter = 0;
+        while(iterator.hasNext()){
+            Object key = iterator.next();
+            Object[] row = {counter + 1,key,result.get(key)};
+            model.addRow(row);
+            ++counter;
+        }
+        
    // ResultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        }
-        if (ResultTable.getRowCount() > 0) {
-            ExportResulttoExcel.setEnabled(true);
-        }
-
+         
+    }
+    if(ResultTable.getRowCount()>0)
+        ExportResulttoExcel.setEnabled(true);
+    
     }//GEN-LAST:event_StartComparisonActionPerformed
 
     /**
@@ -228,7 +213,8 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
-
+        
+        
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
@@ -256,7 +242,7 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new AmdocsEEPdfBillComparatorl().setVisible(true);
-
+                
             }
         });
     }
