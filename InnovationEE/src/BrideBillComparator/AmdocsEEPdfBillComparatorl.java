@@ -5,17 +5,8 @@
  */
 package BrideBillComparator;
 
-import java.awt.Component;
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Iterator;
-import java.util.Map;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 
 /**
  *
@@ -49,20 +40,11 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
         BriteBillDirectory = new javax.swing.JLabel();
         StartComparison = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        ResultTable = new javax.swing.JTable(){
-			@Override
-			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-           Component component = super.prepareRenderer(renderer, row, column);
-           int rendererWidth = component.getPreferredSize().width;
-           TableColumn tableColumn = getColumnModel().getColumn(column);
-           tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
-           return component;
-        }
-    };
-	ResultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        ResultTable = new javax.swing.JTable();
+        Heading = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Amdocs/ EE PDF Bill Comparator");
+        setTitle(" PDF Comparator");
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -145,84 +127,58 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 360, 1050, -1));
 
+        Heading.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
+        Heading.setText("Amdocs/EE-BT PDF Comparator");
+        getContentPane().add(Heading, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 30, -1, -1));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void ChooseBBBillDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChooseBBBillDirActionPerformed
         // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    //
-        // disable the "All files" option.
-        //
-        chooser.setAcceptAllFileFilterUsed(false);
-        //    
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            BriteBillDirectory.setText(chooser.getCurrentDirectory().toString());
-        }
-
-        if (!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()) {
-            StartComparison.setEnabled(true);
-        }
-
+        BriteBillDirectory.setText((new FileOperations()).getDirectory());
+        enableButtons();
     }//GEN-LAST:event_ChooseBBBillDirActionPerformed
 
     private void ChooseEEBillDirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ChooseEEBillDirActionPerformed
         // TODO add your handling code here:
-        JFileChooser chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new java.io.File("."));
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-    //
-        // disable the "All files" option.
-        //
-        chooser.setAcceptAllFileFilterUsed(false);
-        //    
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            EEBillDirectory.setText(chooser.getCurrentDirectory().toString());
-        }
-
-        if (!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()) {
-            StartComparison.setEnabled(true);
-        }
+        EEBillDirectory.setText((new FileOperations()).getDirectory());
+        enableButtons();        
     }//GEN-LAST:event_ChooseEEBillDirActionPerformed
 
     private void ExportResulttoExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExportResulttoExcelActionPerformed
         // TODO add your handling code here:
-     //   JOptionPane.showMessageDialog(StartComparison, "This Functionality is not Present \n Thanks for your patience", "Information", WIDTH);
-        
         ExcelExport.createExcel(ResultTable);
     }//GEN-LAST:event_ExportResulttoExcelActionPerformed
 
     private void StartComparisonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartComparisonActionPerformed
         // TODO add your handling code here:
+       ExportResulttoExcel.setEnabled(false);
+        DefaultTableModel dm = (DefaultTableModel) ResultTable.getModel();
+        for (int i = ResultTable.getRowCount()- 1; i >= 0; i--) {
+            dm.removeRow(i);
+        }   
+        
         File eEDir = new File(EEBillDirectory.getText());
         File bBDir = new File(BriteBillDirectory.getText());
-
-        FilenameCheck filename = new FilenameCheck(eEDir, bBDir);
-
-        //Check whether the Directory contains pdf Files or not   
-        if (filename.checkFilesIfPresent()) {
-            Map result = filename.startComparison();
-
-            DefaultTableModel model = (DefaultTableModel) ResultTable.getModel();
-            Iterator iterator = result.keySet().iterator();
-            int counter = 0;
-            while (iterator.hasNext()) {
-                Object key = iterator.next();
-                Object[] row = {counter + 1, key, result.get(key)};
-                model.addRow(row);
-                ++counter;
-            }
-
-   // ResultTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        }
-        if (ResultTable.getRowCount() > 0) {
-            ExportResulttoExcel.setEnabled(true);
-        }
+    
+        ResultTable = Formatter.createTable(eEDir, bBDir,ResultTable);        
+        enableButtons();        
 
     }//GEN-LAST:event_StartComparisonActionPerformed
 
+    private void enableButtons(){
+        if (ResultTable.getRowCount() > 0) {
+            ExportResulttoExcel.setEnabled(true);
+        }
+        else
+            ExportResulttoExcel.setEnabled(false);
+        
+        if (!EEBillDirectory.getText().isEmpty() && !BriteBillDirectory.getText().isEmpty()) {
+            StartComparison.setEnabled(true);
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -254,6 +210,7 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new AmdocsEEPdfBillComparatorl().setVisible(true);
 
@@ -267,6 +224,7 @@ public class AmdocsEEPdfBillComparatorl extends javax.swing.JFrame {
     private javax.swing.JButton ChooseEEBillDir;
     private javax.swing.JLabel EEBillDirectory;
     private javax.swing.JButton ExportResulttoExcel;
+    private javax.swing.JLabel Heading;
     private javax.swing.JTable ResultTable;
     private javax.swing.JButton StartComparison;
     private javax.swing.JLabel jLabel1;
